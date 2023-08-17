@@ -1,0 +1,62 @@
+/*
+  * This example is based on the official example from the DFRobot wiki: https://wiki.dfrobot.com/SKU_SEN0524_ToF_Outdoor_Laser_Ranging_Module_15m
+  * The sensor is plugged into the UART port of the board, but the VCC wire gets power from the 5V interface of the board (bottom left), because the UART only provides 3.3V.
+  * Interestingly enough, the sensor doesnt always send enough bytes through the serial connection. 
+  * Officially a message in continuous mode should be 32 bytes long, but sometimes we get 31, 20 or less.
+  * I dont know why.
+  * On the Sensebox Mini I always get 256 bytes.
+*/
+
+int i;
+int dat[32]={0};
+unsigned long a,p,q,z;
+void setup()
+{
+  Serial.begin(115200);
+  Serial1.begin(115200,SERIAL_8N1, RX, TX);
+  delay(2000);
+  Serial.println("Initialized");
+}
+
+void loop()
+{
+  if(Serial1.available()>=0)
+    {
+      if(millis()-a>500)
+      {
+        a=millis();
+        for(i=0;i<32;i++)
+        {
+          dat[i]=Serial1.read();
+        }
+        for(i=0;i<16;i++)
+        {
+          if(dat[i]==0x57&&dat[i+1]==0&&dat[i+2]==0xff&&dat[i+3]==0)
+          {
+            if(dat[i+12]+dat[i+13]*255==0)
+            {
+              Serial.println("Out of range!");
+            }
+            else
+            { 
+              z=dat[i+11];
+              Serial.print("Status = ");
+              Serial.print(z);
+              p=dat[i+12]+dat[i+13]*255;
+              Serial.print("  Strength = ");
+              Serial.print(p);
+              q=dat[i+8]+dat[i+9]*255;
+              Serial.print("  Distance = ");
+              Serial.print(q);
+              Serial.println("mm");
+            }
+             break; 
+          } 
+        }
+        Serial.println();
+      }
+    } else {
+      Serial.print("Serial not available. Only received: ");
+      Serial.println(Serial1.available());
+    }
+}
