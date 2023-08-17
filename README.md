@@ -1,4 +1,4 @@
-# senseBoxMCU V2
+# senseBoxMCU-S2 ESP32S2
 
 # Erste Schritte
 
