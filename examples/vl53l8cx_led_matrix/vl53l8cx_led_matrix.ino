@@ -93,11 +93,11 @@ void setup()
   //   snprintf(report, sizeof(report), "vl53l5cx_set_ranging_mode failed, status %u\r\n", status);
   //   SerialPort.print(report);
   // }
-  // sensor_vl53l8cx_top.vl53l8cx_set_ranging_frequency_hz(30);
-  // if (status) {
-  //   snprintf(report, sizeof(report), "vl53l8cx_set_ranging_frequency_hz failed, status %u\r\n", status);
-  //   SerialPort.print(report);
-  // }
+  sensor_vl53l8cx_top.vl53l8cx_set_ranging_frequency_hz(30);
+  if (status) {
+    snprintf(report, sizeof(report), "vl53l8cx_set_ranging_frequency_hz failed, status %u\r\n", status);
+    SerialPort.print(report);
+  }
   Serial.println("ranging mode and frequency was set");
   delay(3000);
 
@@ -129,13 +129,6 @@ void loop()
   if ((!status) && (NewDataReady != 0)) {
     status = sensor_vl53l8cx_top.vl53l8cx_get_ranging_data(&Results);
     print_result(&Results);
-
-    // Uncomment to display actual measurement rate
-    // measurements++;
-    // float measurementTime = (millis() - measurementStartTime) / 1000.0;
-    // Serial.print("rate: ");
-    // Serial.print(measurements/measurementTime, 3);
-    // Serial.println("Hz");
   }
 }
 
@@ -177,18 +170,8 @@ void print_result(VL53L8CX_ResultsData *Result)
     }
   }
   dataStr += "\n";
-  // Serial.println("");
   Serial.print(dataStr);
   RGBMatrix.show();
-//   file = SD.open("/csv.txt", FILE_WRITE);
-//   if(!file){
-//     Serial.println("Failed to open file for appending");
-//     return;
-//   }
-//   if(!file.print(dataStr)){
-//     Serial.println("Append failed");
-//   }
-//   file.close();
 }
 
 void toggle_resolution(void)
