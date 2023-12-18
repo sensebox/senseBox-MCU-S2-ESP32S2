@@ -5,13 +5,11 @@
 
 
 float getSMT50Temperature(int analogPin){
-  int sensorValue = analogRead(analogPin);
-    float voltage = sensorValue * (3.3 / 8190.0);
-   return (voltage - 0.5) * 100;
+  float voltage = analogReadMilliVolts(analogPin) / 1000.0;
+  return (voltage - 0.5) * 100;
 }
 float getSMT50Moisture(int analogPin){
-  int sensorValue = analogRead(analogPin);
-  float voltage = sensorValue * (3.3 / 8190.0);
+  float voltage = analogReadMilliVolts(analogPin) / 1000.0;
   return (voltage * 50) / 3;
 }
 
@@ -23,6 +21,7 @@ void setup() {
   digitalWrite(IO_ENABLE,LOW);
   pinMode(TEMP_IO,INPUT);
   pinMode(HUMI_IO,INPUT);
+  analogReadResolution(13);
   analogSetAttenuation(ADC_11db);
 }
 
