@@ -20,6 +20,7 @@
 #define VSPI_SCLK   12
 #define VSPI_SS     10
 #define SD_ENABLE   9
+SPIClass sdspi = SPIClass();
 
 void listDir(fs::FS &fs, const char * dirname, uint8_t levels){
     Serial.printf("Listing directory: %s\n", dirname);
@@ -183,7 +184,6 @@ void setup(){
     pinMode(SD_ENABLE,OUTPUT);
     digitalWrite(SD_ENABLE,LOW);
     delay(2000);
-    SPIClass sdspi = SPIClass();
     sdspi.begin(VSPI_SCLK,VSPI_MISO,VSPI_MOSI,VSPI_SS);
     if(!SD.begin(VSPI_SS,sdspi)){
         Serial.println("Card Mount Failed");
