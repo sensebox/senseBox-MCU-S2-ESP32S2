@@ -14,7 +14,7 @@ DOUT -> IO6 (GPIOC)
 GND -> GND (ext. 5V)
 */
 #include <Wire.h>
-#include <vl53l8cx_class.h>
+#include <vl53l8cx.h>
 #include <math.h>
 
 #define DEV_I2C Wire
@@ -82,10 +82,12 @@ void setup()
   DEV_I2C.begin(39,40);
   DEV_I2C.setClock(1000000); //Sensor has max I2C freq of 1MHz
 
+  sensor_vl53l8cx_top.set_i2c_address(0x51); // the sensor shares an I2C address with the LTR329 so we need to change it
+
   // Configure VL53L8CX component.
   sensor_vl53l8cx_top.begin();
   Serial.println("Sensor library started");
-  sensor_vl53l8cx_top.init_sensor();
+  sensor_vl53l8cx_top.init();
   Serial.println("Sensor initialized");
 
   // sensor_vl53l8cx_top.vl53l8cx_set_ranging_mode(VL53L8CX_RANGING_MODE_AUTONOMOUS);
@@ -93,7 +95,7 @@ void setup()
   //   snprintf(report, sizeof(report), "vl53l5cx_set_ranging_mode failed, status %u\r\n", status);
   //   SerialPort.print(report);
   // }
-  sensor_vl53l8cx_top.vl53l8cx_set_ranging_frequency_hz(30);
+  sensor_vl53l8cx_top.set_ranging_frequency_hz(30);
   if (status) {
     snprintf(report, sizeof(report), "vl53l8cx_set_ranging_frequency_hz failed, status %u\r\n", status);
     SerialPort.print(report);
@@ -102,7 +104,7 @@ void setup()
   delay(3000);
 
   // Start Measurements
-  sensor_vl53l8cx_top.vl53l8cx_start_ranging();
+  sensor_vl53l8cx_top.start_ranging();
 
   toggle_resolution();
   toggle_signal_and_ambient();
@@ -123,11 +125,11 @@ void loop()
   uint8_t status;
 
   do {
-    status = sensor_vl53l8cx_top.vl53l8cx_check_data_ready(&NewDataReady);
+    status = sensor_vl53l8cx_top.check_data_ready(&NewDataReady);
   } while (!NewDataReady);
 
   if ((!status) && (NewDataReady != 0)) {
-    status = sensor_vl53l8cx_top.vl53l8cx_get_ranging_data(&Results);
+    status = sensor_vl53l8cx_top.get_ranging_data(&Results);
     print_result(&Results);
   }
 }
@@ -176,7 +178,7 @@ void print_result(VL53L8CX_ResultsData *Result)
 
 void toggle_resolution(void)
 {
-  sensor_vl53l8cx_top.vl53l8cx_stop_ranging();
+  sensor_vl53l8cx_top.stop_ranging();
 
   switch (res)
   {
@@ -191,8 +193,8 @@ void toggle_resolution(void)
     default:
       break;
   }
-  sensor_vl53l8cx_top.vl53l8cx_set_resolution(res);
-  sensor_vl53l8cx_top.vl53l8cx_start_ranging();
+  sensor_vl53l8cx_top.set_resolution(res);
+  sensor_vl53l8cx_top.start_ranging();
 }
 
 void toggle_signal_and_ambient(void)
